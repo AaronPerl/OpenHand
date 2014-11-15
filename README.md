@@ -1,0 +1,4 @@
+OpenHand
+========
+
+HackRPI Project
