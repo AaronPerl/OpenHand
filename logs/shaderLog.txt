@@ -1,0 +1,2 @@
+0(36) : error C1008: undefined variable "glPosition"
+

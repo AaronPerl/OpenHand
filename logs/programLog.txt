@@ -1,0 +1,2 @@
+ERROR: Definition for "void main()" not found.
+
