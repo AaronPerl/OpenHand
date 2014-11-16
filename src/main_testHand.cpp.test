@@ -1,0 +1,54 @@
+#include <iostream>
+#include <string>
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "OpenHand.hpp"
+
+using namespace cv;
+using namespace std;
+string colorNames[] =
+{
+	"Orange",
+	"Green",
+	"Blue",
+	"Yellow",
+	"-",
+	"Red"
+};
+int main()
+{
+	VideoCapture cap(0); //capture the video from webcam
+
+	if (!cap.isOpened())  // if not success, exit program
+		cerr << "Cannot open the webcam." << endl;
+	
+	namedWindow("Testing", CV_WINDOW_AUTOSIZE);
+	int data[18];
+	Mat img;
+	
+	while(true)
+	{
+		// Try to read from the video stream
+		if (!cap.read(img))
+			cerr << "Cannot read from the video stream." << endl;
+		
+		processFrame(data,img);
+		
+		int offset = 0;
+		for(int i = 0; i < 6; i++)
+		{
+			circle(img,Point(data[i*3],data[i*3+1]),5,Scalar(128,128,128),-1);
+			if(data[i*3] != -1)
+			{
+				string color;
+				putText(img,"Color: " + colorNames[i],Point(20,20+offset),1,1,Scalar(255,255,255),1,8,false);
+				offset += 20;
+			}
+		}
+		imshow("Testing", img);
+		
+		
+		
+		if (waitKey(15) == 27) break; 
+	}
+}
