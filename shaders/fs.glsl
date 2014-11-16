@@ -1,4 +1,4 @@
-#version 150
+#version 330
 
 uniform mat4       view_matrix;
 uniform mat4 projection_matrix;
@@ -11,7 +11,7 @@ uniform vec4		eye_normal;
 in vec4 varyingPosition;
 in vec4 varyingNormal;
 
-out vec4 gl_FragColor;
+layout(location = 0) out vec3 color;
 
 struct lightSource
 {
@@ -54,7 +54,7 @@ void main()
 	vec3 eyeDirection = normalize(eye_position.xyz-varyingPosition.xyz);
 	float specFactor = dot(reflectedLight, eyeDirection);
 	specFactor = pow(clamp(specFactor, 0, 1), frontMaterial.shininess);
-	gl_FragColor = 	scene_ambient * frontMaterial.ambient +
-					diffFactor * frontMaterial.diffuse 	* vec4(light0.diffuse,1) + 
-					specFactor * frontMaterial.specular * vec4(light0.specular,1);
+	color = 	(scene_ambient * frontMaterial.ambient +
+				diffFactor * frontMaterial.diffuse 	* vec4(light0.diffuse,1) + 
+				specFactor * frontMaterial.specular * vec4(light0.specular,1)).rgb;
 }

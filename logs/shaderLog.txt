@@ -1,2 +1,2 @@
-0(36) : error C1008: undefined variable "glPosition"
+0(57) : error C7011: implicit cast from "vec4" to "vec3"
 
