@@ -6,8 +6,15 @@
 #include <pthread.h>
 #include <glm/glm.hpp>
 
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "OpenHand.hpp"
+
 using namespace std;
+using namespace cv;
 using glm::vec3;
+using glm::vec2;
+using glm::vec4;
 
 class OpenHandTest : private Game {
 public:
@@ -54,14 +61,11 @@ public:
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		int width;
-		int height;
-		
 		SDL_GetWindowSize(window,&width,&height);
 		
-		glViewport(0,0,width/2, height);
+		/*glViewport(0,0,width/2, height);
 		
-		/*GLuint leftFramebuffer = 0;
+		GLuint leftFramebuffer = 0;
 		glGenFramebuffers(1, &leftFramebuffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, leftFramebuffer);
 		
@@ -99,7 +103,8 @@ public:
 		// view matrix
 		glm::mat4 viewMat;
 		// projection matrix
-		glm::mat4 projectionMat = glm::perspective(1.0472f, width/(float)height/2, 0.1f, 100.0f);
+//		glm::mat4 projectionMat = glm::perspective(1.0472f, width/(float)height/2, 0.1f, 100.0f);
+		glm::mat4 projectionMat = glm::perspective(1.0472f, width/(float)height, 0.1f, 100.0f);
 
 		glUseProgram(program);
 	
@@ -111,7 +116,8 @@ public:
 		GLuint nmloc = glGetUniformLocation(program, "norm_matrix");
 		GLuint eploc = glGetUniformLocation(program, "eye_position");
 		GLuint enloc = glGetUniformLocation(program, "eye_normal");
-
+		GLuint clloc = glGetUniformLocation(program, "obj_color");
+		
 		// pass uniforms
 		glUniformMatrix4fv(prloc,1,GL_FALSE,&projectionMat[0][0]);
 
@@ -134,19 +140,24 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER,normalBuffer);					// bind normal buffer
 		glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,0,(void*)0); 	// set normal buffer to index 1
 		
-		viewMat = 	glm::lookAt(	glm::vec3(-0.3,10,5),
-									glm::vec3(0,0,0),
+		
+		viewMat = 	glm::lookAt(	glm::vec3(0,1,5),
+									glm::vec3(0,1,0),
 									glm::vec3(0,1,0));
 
 		glUniformMatrix4fv(vloc,1,GL_FALSE,&viewMat[0][0]);
 		glUniform4fv(eploc,1,&viewMat[3][0]);
 		glUniform4fv(enloc,1,&viewMat[2][0]);
 		
+		
 		lockObjects();
 		
 		for (unsigned int i = 0; i<objects.size(); i++)
 		{
 			const model curModel = objects[i]->getModel();
+			glm::vec3 curColor = objects[i]->getColor();
+			glUniform3fv(clloc,1,&curColor[0]);
+		
 
 			// model matrix
 			glm::vec3 axis(1.0f,0.0f,0.0f);
@@ -179,7 +190,7 @@ public:
 		
 		unlockObjects();
 		
-		glViewport(width/2,0,width/2,height);
+		/*glViewport(width/2,0,width/2,height);
 		
 		viewMat = 	glm::lookAt(	glm::vec3(0.3,10,5),
 									glm::vec3(0,0,0),
@@ -198,7 +209,7 @@ public:
 			// model matrix
 			glm::vec3 axis(1.0f,0.0f,0.0f);
 			glm::mat4 modelMat = 	glm::translate(	glm::mat4(1.0f),	objects[i]->getPosition()				)*
-									glm::rotate(	glm::mat4(1.0f),	-3.14f/2,axis)*//SDL_GetTicks()/10000.0f * 3.14f, axis	)*
+									glm::rotate(	glm::mat4(1.0f),	-3.14f/2,axis)* //SDL_GetTicks()/10000.0f * 3.14f, axis	)*
 									glm::scale(		glm::mat4(1.0f),	glm::vec3(0.1,0.1,0.1)					);
 
 			// modelview projection matrix
@@ -224,7 +235,7 @@ public:
 			}
 		}
 		
-		unlockObjects();
+		unlockObjects();*/
 		
 		// free memory
 		glDeleteBuffers(1,&vertexBuffer);
@@ -257,7 +268,15 @@ public:
 		unlockObjects();
 		return false;
 	}
+	vec4 getViewport()
+	{
+		return vec4(0,0,width,height);
+	}
 private:
+
+	int width;
+	int height;
+		
 	GLuint fbProgram;
 	pthread_mutex_t objectLock;
 	vector<GameObject*> objects;
@@ -280,9 +299,17 @@ int main(int argc, char** argv){
 	OpenHandTest game;
 	game.start();
 	
-	model m = read3DSFile("models/teapot.3ds");
+	model m = read3DSFile("models/sphere.3ds");
 	GameObject newObj(m);
 	
+	VideoCapture cap(0); //capture the video from webcam
+
+	if (!cap.isOpened())  // if not success, exit program
+		cerr << "Cannot open the webcam." << endl;
+	
+	//namedWindow("Testing", CV_WINDOW_AUTOSIZE);
+	int data[18];
+	Mat img;
 	
 	SDL_Delay(1000);
 	
@@ -290,11 +317,47 @@ int main(int argc, char** argv){
 	float i = 0;
 	while (1)
 	{
+		
+		// Try to read from the video stream
+		if (!cap.read(img))
+			cerr << "Cannot read from the video stream." << endl;
+		
+		processFrame(data,img);
+		for (int i = 0; i < 6; i++)
+		{
+			if (data[3*i] != -1)
+			{
+				circle(img,Point(data[i*3],data[i*3+1]),5,Scalar(128,128,128),-1);
+			}
+		}
+		imshow("Testing", img);
+		
 		i+= 0.02f;
 		
-		newObj.setPosition(vec3(0.0f,sin(i)*3,0.0f));
+		if (data[3] != -1)
+		{
+			newObj.setPosition(vec3(-10*float(data[3]-img.cols/2)/img.cols,1.0f-10*float(data[4]-img.rows/2)/img.rows,3*sqrt(1000000.0f/data[5])-6.0f));
+			if (data[6] != -1 && data[7] > img.rows/8 + data[4])
+				newObj.setColor(vec3(0.0f,1.0f,0.0f));
+			if (data[9] != -1 && data[10] > img.rows/8 + data[4])
+				newObj.setColor(vec3(1.0f,0.0f,0.0f));
+			if (data[12] != -1 && data[13] > img.rows/8 + data[4])
+				newObj.setColor(vec3(1.0f,1.0f,0.0f));
+		}
+		if (data[15]!=-1)
+			newObj.setColor(vec3(0.5f,0.0f,0.5f));
+		else if(newObj.getColor() == vec3(0.5f,0.0f,0.5f))
+			newObj.setColor(vec3(1.0,1.0f,1.0f));
+			
 		
-		SDL_Delay(10);
+		//if (data[0] != -1)
+		//	std::cout << sqrt(1000000.0f/data[2]) << std::endl;
+		
+//		glm::glUnproject();
+	
+		
+		if (waitKey(15) == 27) break; 
+		//SDL_Delay(10);
 		
 		//SDL_Delay(1000);
 		

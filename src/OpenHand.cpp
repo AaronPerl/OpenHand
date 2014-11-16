@@ -45,8 +45,8 @@ void processFrame(int* data, Mat& img)
 		if(hues[i+i] < hues[(i+i) + 1])
 		{
 			inRange(imgHSV, Scalar(hues[i+i], sats[i+i], values[i+i]), Scalar(hues[i+i+1], sats[i+i+1], values[i+i+1]), imgThresh); //Threshold the image
-			if(i == 5)				
-				imshow("Purple", imgThresh);
+			//if(i == 5)				
+			//	imshow("Purple", imgThresh);
 		}
 		else
 		{
