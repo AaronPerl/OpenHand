@@ -7,6 +7,7 @@ uniform mat4        mvp_matrix;
 uniform mat4	   norm_matrix;
 uniform vec4	  eye_position;
 uniform vec4		eye_normal;
+uniform vec3		 obj_color;
 
 in vec4 varyingPosition;
 in vec4 varyingNormal;
@@ -37,8 +38,8 @@ struct material
 };
 
 material frontMaterial = material(
-  vec4(0.3, 0.2, 0.2, 1.0),
-  vec4(1.0, 0.0, 0.0, 1.0),
+  vec4(0.2, 0.2, 0.2, 1.0),
+  vec4(obj_color.rgb, 1.0),
   vec4(1.0, 1.0, 1.0, 1.0),
   64.0
 );
