@@ -13,7 +13,7 @@ int hues[] =
 	(100*255)/360,	(130*255)/360,	// Green
 	(250*255)/360,	(5*255)/360,	// Red
 	(40*255)/360,	(70*255)/360,	// Yellow
-	(190*255)/360,	(200*255)/360	// Purple
+	(170*255)/360,	(250*255)/360	// Purple
 };
 int sats[] = 
 {
@@ -22,7 +22,7 @@ int sats[] =
 	(60*255)/100,	(100*255)/100,	// Green
 	(50*255)/100,	(100*255)/100,	// Red
 	(60*255)/100,	(100*255)/100,	// Yellow
-	(50*255)/100,	(100*255)/100	// Purple
+	(40*255)/100,	(100*255)/100	// Purple
 };
 int values[] = 
 {
@@ -45,6 +45,8 @@ void processFrame(int* data, Mat& img)
 		if(hues[i+i] < hues[(i+i) + 1])
 		{
 			inRange(imgHSV, Scalar(hues[i+i], sats[i+i], values[i+i]), Scalar(hues[i+i+1], sats[i+i+1], values[i+i+1]), imgThresh); //Threshold the image
+			if(i == 5)				
+				imshow("Purple", imgThresh);
 		}
 		else
 		{
@@ -52,7 +54,6 @@ void processFrame(int* data, Mat& img)
 			inRange(imgHSV, Scalar(hues[i+i], sats[i+i], values[i+i]), Scalar(255, sats[i+i+1], values[i+i+1]), imgThresh);		//Threshold the image
 			inRange(imgHSV, Scalar(0, sats[i+i], values[i+i]), Scalar(hues[i+i+1], sats[i+i+1], values[i+i+1]), imgThreshCopy);	//Threshold the image
 			imgThresh += imgThreshCopy;
-			imshow("Red", imgThresh);
 		}
 			
 		//morphological opening (removes small objects from the foreground)
@@ -71,7 +72,7 @@ void processFrame(int* data, Mat& img)
 		double dArea = oMoments.m00;
 
 		// if the area <= 10000, I consider that the there are no object in the image and it's because of the noise, the area is not zero 
-		if (dArea > 5000)
+		if (dArea > 4000)
 		{
 			//calculate the position of the ball
 			data[i+i+i]		= dM10 / dArea;
