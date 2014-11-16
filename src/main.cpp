@@ -99,7 +99,7 @@ public:
 		// view matrix
 		glm::mat4 viewMat;
 		// projection matrix
-		glm::mat4 projectionMat = glm::perspective(1.0472f, width/(float)height, 0.1f, 100.0f);
+		glm::mat4 projectionMat = glm::perspective(1.0472f, width/(float)height/2, 0.1f, 100.0f);
 
 		glUseProgram(program);
 	
