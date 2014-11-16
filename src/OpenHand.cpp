@@ -8,46 +8,45 @@ using namespace std;
 
 int hues[] = 
 {
-	(5*255)/360,	(25*255)/360,		// Orange
-	(100*255)/360,	(130*255)/360,		// Green
-	(140*255)/360,	(170*255)/360,		// Blue
-	(40*255)/360,	(70*255)/360,		// Yellow
-	(190*255)/360,	(200*255)/360,		// -
-	(250*255)/360,	(5*255)/360			// Red
+	(140*255)/360,	(170*255)/360,	// Blue
+	(5*255)/360,	(25*255)/360,	// Orange
+	(100*255)/360,	(130*255)/360,	// Green
+	(250*255)/360,	(5*255)/360,	// Red
+	(40*255)/360,	(70*255)/360,	// Yellow
+	(190*255)/360,	(200*255)/360	// Purple
 };
 int sats[] = 
 {
-	(80*255)/100,	(100*255)/100,
-	(60*255)/100,	(100*255)/100,
-	(80*255)/100,	(100*255)/100,
-	(60*255)/100,	(100*255)/100,
-	(50*255)/100,	(100*255)/100,
-	(45*255)/100,	(100*255)/100
+	(80*255)/100,	(100*255)/100,	// Blue
+	(80*255)/100,	(100*255)/100,	// Orange
+	(60*255)/100,	(100*255)/100,	// Green
+	(45*255)/100,	(100*255)/100,	// Red
+	(60*255)/100,	(100*255)/100,	// Yellow
+	(50*255)/100,	(100*255)/100	// Purple
 };
 int values[] = 
 {
-	(50*255)/100,	(100*255)/100,
-	(50*255)/100,	(100*255)/100,
-	(50*255)/100,	(100*255)/100,
-	(50*255)/100,	(100*255)/100,
-	(50*255)/100,	(100*255)/100,
-	(30*255)/100,	(100*255)/100
+	(50*255)/100,	(100*255)/100,	// Blue
+	(50*255)/100,	(100*255)/100,	// Orange
+	(50*255)/100,	(100*255)/100,	// Green
+	(30*255)/100,	(100*255)/100,	// Red
+	(50*255)/100,	(100*255)/100,	// Yellow
+	(50*255)/100,	(100*255)/100	// Purple
 };
 
 void processFrame(int* data, Mat& img)
 {
+	Mat imgHSV;
+	cvtColor(img, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
 	// For each color
 	for(int i = 0; i < 6; i++)
 	{
-		Mat imgHSV;
-		cvtColor(img, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
 		Mat imgThresh;
-		
 		if(hues[i+i] < hues[(i+i) + 1])
 		{
 			inRange(imgHSV, Scalar(hues[i+i], sats[i+i], values[i+i]), Scalar(hues[i+i+1], sats[i+i+1], values[i+i+1]), imgThresh); //Threshold the image
-			if (i == 0)
-				imshow("Orange", imgThresh);
+			if (i == 2)
+				imshow("Green", imgThresh);
 		}
 		else
 		{
@@ -73,7 +72,7 @@ void processFrame(int* data, Mat& img)
 		double dArea = oMoments.m00;
 
 		// if the area <= 10000, I consider that the there are no object in the image and it's because of the noise, the area is not zero 
-		if (dArea > 7500)
+		if (dArea > 5000)
 		{
 			//calculate the position of the ball
 			data[i+i+i]		= dM10 / dArea;

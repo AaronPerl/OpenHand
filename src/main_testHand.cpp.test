@@ -8,12 +8,12 @@ using namespace cv;
 using namespace std;
 string colorNames[] =
 {
+	"Blue",
 	"Orange",
 	"Green",
-	"Blue",
+	"Red",
 	"Yellow",
-	"-",
-	"Red"
+	"Purple"
 };
 int main()
 {
