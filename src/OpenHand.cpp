@@ -20,7 +20,7 @@ int sats[] =
 	(80*255)/100,	(100*255)/100,	// Blue
 	(80*255)/100,	(100*255)/100,	// Orange
 	(60*255)/100,	(100*255)/100,	// Green
-	(45*255)/100,	(100*255)/100,	// Red
+	(50*255)/100,	(100*255)/100,	// Red
 	(60*255)/100,	(100*255)/100,	// Yellow
 	(50*255)/100,	(100*255)/100	// Purple
 };
@@ -28,8 +28,8 @@ int values[] =
 {
 	(50*255)/100,	(100*255)/100,	// Blue
 	(50*255)/100,	(100*255)/100,	// Orange
-	(50*255)/100,	(100*255)/100,	// Green
-	(30*255)/100,	(100*255)/100,	// Red
+	(30*255)/100,	(100*255)/100,	// Green
+	(35*255)/100,	(100*255)/100,	// Red
 	(50*255)/100,	(100*255)/100,	// Yellow
 	(50*255)/100,	(100*255)/100	// Purple
 };
@@ -45,8 +45,6 @@ void processFrame(int* data, Mat& img)
 		if(hues[i+i] < hues[(i+i) + 1])
 		{
 			inRange(imgHSV, Scalar(hues[i+i], sats[i+i], values[i+i]), Scalar(hues[i+i+1], sats[i+i+1], values[i+i+1]), imgThresh); //Threshold the image
-			if (i == 2)
-				imshow("Green", imgThresh);
 		}
 		else
 		{
@@ -54,15 +52,16 @@ void processFrame(int* data, Mat& img)
 			inRange(imgHSV, Scalar(hues[i+i], sats[i+i], values[i+i]), Scalar(255, sats[i+i+1], values[i+i+1]), imgThresh);		//Threshold the image
 			inRange(imgHSV, Scalar(0, sats[i+i], values[i+i]), Scalar(hues[i+i+1], sats[i+i+1], values[i+i+1]), imgThreshCopy);	//Threshold the image
 			imgThresh += imgThreshCopy;
+			imshow("Red", imgThresh);
 		}
 			
 		//morphological opening (removes small objects from the foreground)
-		erode(imgThresh, imgThresh, getStructuringElement(MORPH_ELLIPSE, Size(9,9)));
-		dilate(imgThresh, imgThresh, getStructuringElement(MORPH_ELLIPSE, Size(9,9))); 
+		erode(imgThresh, imgThresh, getStructuringElement(MORPH_ELLIPSE, Size(8,8)));
+		dilate(imgThresh, imgThresh, getStructuringElement(MORPH_ELLIPSE, Size(8,8))); 
 
 		//morphological closing (removes small holes from the foreground)
-		dilate(imgThresh, imgThresh, getStructuringElement(MORPH_ELLIPSE, Size(9,9))); 
-		erode(imgThresh, imgThresh, getStructuringElement(MORPH_ELLIPSE, Size(9,9)));
+		dilate(imgThresh, imgThresh, getStructuringElement(MORPH_ELLIPSE, Size(8,8))); 
+		erode(imgThresh, imgThresh, getStructuringElement(MORPH_ELLIPSE, Size(8,8)));
 
 		//Calculate the moments of the thresholded image
 		Moments oMoments = moments(imgThresh);
